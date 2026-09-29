@@ -11,7 +11,9 @@ SHEET_ID = "10-v2ZGd286ZRKcXLkMXehDewNoZTIejRJWIPR_vc4fg"
 MEMORY_FILE = "MEMORY.JSON"
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 client = Groq( api_key =GROQ_API_KEY)if GROQ_API_KEY else None 
-
+WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
+PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
+VERIFY_TOKEN = os.getenv("VERIFY_TOKEN","dropnix123")
 def get_prompt_from_sheet():
     try:
         url =f"https://docs.google.com/spreadsheet/d/{SHEET_ID}/export?format=cvs"
@@ -83,6 +85,28 @@ def get_bot_reply(user_mes,costumer_number = "default"):
 @app.route("/",methods=["GET"])
 def home():
     return"bot is live"
+@app.route("/webhook",methods=["get"])
+def verify():
+    if request.args.get("hub.verify_token")== VERIFY_TOKEN:
+        return request.args.get("hub.challenge")
+    return "Verifycation failed",403
+
+@app.route("/webhook",methods=["POST"])
+def webhook():
+    data = request.get_json()
+    try:
+        msg_obj = data['entry'][0]['changes'][0]['value']['messages'][0]
+        from_number = msg_obj['from']
+        user_text = msg_obj['text']['body']
+        bot_reply = get_bot_reply(user_text,from_number)
+
+        url = f"https://graph.facebook.com/v20.0/{PHONE_NUMBER_ID}/messages"
+        headers = {"Authorization":f"Bearer {WHATSAPP_TOKEN}","Content-Type":"application/json"}
+        payload = {"messaging_product":"whatsapp","to":from_number,"text":{"body":bot_reply}}
+        requests.post(url,headers=headers,json=payload)
+    except Exception as e:
+        print(f"Webhook error:{e}")
+    return "OK",200
 
 @app.route("/chat",methods=["POST"])
 def chat_api():
