@@ -7,7 +7,7 @@ import requests
 load_dotenv()
 app = Flask(__name__)
 
-SHEET_ID = "10-v2ZGd286ZRKcXLkMXehDewNoZTIejRJWIPR_vc4fg"
+SHEET_ID = "1ZCjMzADQm4cRKq1IFkpukfxX-uP-fSL66xHWwhhEyIQ"
 MEMORY_FILE = "MEMORY.JSON"
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 client = Groq( api_key =GROQ_API_KEY)if GROQ_API_KEY else None 
