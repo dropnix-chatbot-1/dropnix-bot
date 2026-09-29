@@ -1,4 +1,4 @@
-import os,datetime,json 
+import os,datetime,json,io,csv 
 from groq import Groq 
 from dotenv import load_dotenv 
 from flask import Flask, request, jsonify 
@@ -20,7 +20,7 @@ def get_prompt_from_sheet():
         r = requests.get(url,timeout=10)
         r.raise_for_status()
         f = io.StringIO(r.text)
-        reader = cvs.DictReader(f)
+        reader = csv.DictReader(f)
         for row in reader:
             if row.get("key") =="system_prompt" and row.get("value"):
                 print(" sheet se prompt loaded hai")
@@ -48,7 +48,7 @@ def get_bot_reply(user_mes,costumer_number = "default"):
     if os.path.exists(MEMORY_FILE) and os.path.getsize(MEMORY_FILE)>0 :
         try:
             with open(MEMORY_FILE,'r',encoding="utf-8")as f:
-                chat_histoy = json.load(f)
+                chat_history = json.load(f)
         except:
             chat_history = []
 
@@ -57,10 +57,10 @@ def get_bot_reply(user_mes,costumer_number = "default"):
         if chat.get("number")== costumer_number or costumer_number =="default":
             if "user" in chat and "agent" in chat :
                 history_msg.append({"role":"user","content":str(chat["user"])})  
-                history_msg.append({"role":"assistent","content":str(chat["agent"])})
+                history_msg.append({"role":"assistant","content":str(chat["agent"])})
 
-    to_send = [system_msg] +history[-10:]
-    to_send.append({"role":"user","content": user_msg})
+    to_send = [system_mes] +history-msg[-10:]
+    to_send.append({"role":"user","content": user_mes})
 
     response = client.chat.completions.create(
         model = "openai/gpt-oss-20b",
@@ -72,7 +72,7 @@ def get_bot_reply(user_mes,costumer_number = "default"):
 
     chat_history.append({
         "time": datetime.datetime.now().strftime("%d-%m-%y %H:%M:%S"),
-        "user": user_msg,
+        "user": user_mes,
         "agent": reply,
         "number": costumer_number
     })
@@ -95,8 +95,12 @@ def verify():
 
 @app.route("/webhook",methods=["POST"])
 def webhook():
-    data = request.get_json()
     try:
+        data = request.get_json()
+        value = data['entry'][0]['changes'][0]['value']
+        if 'messages'not in value:
+            return "OK",200
+        
         msg_obj = data['entry'][0]['changes'][0]['value']['messages'][0]
         from_number = msg_obj['from']
         user_text = msg_obj['text']['body']
@@ -104,7 +108,7 @@ def webhook():
 
         url = f"https://graph.facebook.com/v20.0/{PHONE_NUMBER_ID}/messages"
         headers = {"Authorization":f"Bearer {WHATSAPP_TOKEN}","Content-Type":"application/json"}
-        payload = {"messaging_product":"whatsapp","to":from_number,"text":{"body":bot_reply}}
+        payload = {"messaging_product":"whatsapp","to":from_number,"type":"text","text":{"body":bot_reply}}
         requests.post(url,headers=headers,json=payload)
     except Exception as e:
         print(f"Webhook error:{e}")
