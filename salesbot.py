@@ -1,14 +1,14 @@
-import os,datetime,json,io,csv 
+import os,json
 from groq import Groq 
 from dotenv import load_dotenv 
 from flask import Flask, request, jsonify 
 import requests
-
+from datetime import datetime
 load_dotenv()
 app = Flask(__name__)
 
 SHEET_ID = "1ZCjMzADQm4cRKq1IFkpukfxX-uP-fSL66xHWwhhEyIQ"
-MEMORY_FILE = "MEMORY.JSON"
+MEMORY_FILE = "/tmp/memory.json"
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 client = Groq( api_key =GROQ_API_KEY)if GROQ_API_KEY else None 
 WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
@@ -56,7 +56,7 @@ def get_bot_reply(user_mes,costumer_number = "default"):
     reply = response.choices[0].message.content
 
     chat_history.append({
-        "time": datetime.datetime.now().strftime("%d-%m-%y %H:%M:%S"),
+        "time": datetime.now().strftime("%d-%m-%y %H:%M:%S"),
         "user": user_mes,
         "agent": reply,
         "number": costumer_number
@@ -68,8 +68,6 @@ def get_bot_reply(user_mes,costumer_number = "default"):
     return reply
 @app.route("/",methods=["GET"])
 def home():
-    if request.args.get("hub.verify_token")==VERIFY_TOKEN:
-        return request.args.get("hub.challenge"),200
     return "bot is live"
 
 @app.route("/webhook",methods=["GET"])
@@ -82,6 +80,7 @@ def verify():
 def webhook():
     try:
         data = request.get_json()
+        print(f"webhook data aya:{data}")
         value = data['entry'][0]['changes'][0]['value']
         if 'messages'not in value:
             return "OK",200
@@ -94,9 +93,10 @@ def webhook():
         url = f"https://graph.facebook.com/v20.0/{PHONE_NUMBER_ID}/messages"
         headers = {"Authorization":f"Bearer {WHATSAPP_TOKEN}","Content-Type":"application/json"}
         payload = {"messaging_product":"whatsapp","to":from_number,"type":"text","text":{"body":bot_reply}}
-        requests.post(url,headers=headers,json=payload)
+        r = requests.post(url,headers=headers,json=payload)
+        print(f"WA API:{r.status_code}{r.text}")
     except Exception as e:
-        print(f"Webhook error:{e}")
+        print(f"WEBHOOK ERROR:{e}")
     return "OK",200
 
 @app.route("/chat",methods=["POST"])
