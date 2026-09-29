@@ -21,11 +21,8 @@ def get_prompt_from_sheet():
         offer no.2 3000₹/month facebook ads
         offer no.3 3000₹/month 24/7 call uthane wala recepnisest 
         best offer 8000₹/month fcebook and insta ads + offer no.3 + per day 5-8 costumer paka
-        
         rula---
-        1.jab customer ko ya batao to apne taraf se ore open or simple kar ke batana 
-        2.phehle costumer ke welcome karo aise"hey sir welcome to the all india cosmatic family \n yaha ham all india ke sabhi cosmatic shops ko grow karne unke customer na aine ke problem ko solve karte hai ham ne ab tak 200+ shop ke saath kaam kiye hai ore wo shops hamare saath 2 saal se laga taar kam kar rahi hai \n WHAT CAN I HELP YOU SIR 
-        3.rule no.2 ko apne taraf se thoda chota kar daina
+        1.jawab sirf hinglish me de
         """
 
 def get_bot_reply(user_mes,costumer_number = "default"):
