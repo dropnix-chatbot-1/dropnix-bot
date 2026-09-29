@@ -81,15 +81,17 @@ def get_bot_reply(user_mes,costumer_number = "default"):
         json.dump(chat_history,f,indent=4,ensure_ascii=False)
 
     return reply
-
 @app.route("/",methods=["GET"])
 def home():
-    return"bot is live"
-@app.route("/webhook",methods=["get"])
+    if request.args.get("hub.verify_token")==VERIFY_TOKEN:
+        return request.args.get("hub.challenge"),200
+        return "bot is live"
+
+@app.route("/webhook",methods=["GET"])
 def verify():
     if request.args.get("hub.verify_token")== VERIFY_TOKEN:
-        return request.args.get("hub.challenge")
-    return "Verifycation failed",403
+        return request.args.get("hub.challenge"),200
+    return "verification failed",403
 
 @app.route("/webhook",methods=["POST"])
 def webhook():
