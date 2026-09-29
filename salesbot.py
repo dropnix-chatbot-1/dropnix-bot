@@ -15,18 +15,6 @@ WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
 PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN","dropnix123")
 def get_prompt_from_sheet():
-    try:
-        url =f"https://docs.google.com/spreadsheet/d/{SHEET_ID}/export?format=cvs"
-        r = requests.get(url,timeout=10)
-        r.raise_for_status()
-        f = io.StringIO(r.text)
-        reader = csv.DictReader(f)
-        for row in reader:
-            if row.get("key") =="system_prompt" and row.get("value"):
-                print(" sheet se prompt loaded hai")
-                return row.get("value").strip()
-    except Exception as e:
-        print(f"sheet error:{e}")
     return """ tu Dropnix.ai company ka salesbot hai tuje costumre ko hamare poductke detail bataine hai
         product---
         offer no.1 1500₹/month 24/7 chatbot 
