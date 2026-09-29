@@ -85,7 +85,7 @@ def get_bot_reply(user_mes,costumer_number = "default"):
 def home():
     if request.args.get("hub.verify_token")==VERIFY_TOKEN:
         return request.args.get("hub.challenge"),200
-        return "bot is live"
+    return "bot is live"
 
 @app.route("/webhook",methods=["GET"])
 def verify():
