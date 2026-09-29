@@ -59,7 +59,7 @@ def get_bot_reply(user_mes,costumer_number = "default"):
                 history_msg.append({"role":"user","content":str(chat["user"])})  
                 history_msg.append({"role":"assistant","content":str(chat["agent"])})
 
-    to_send = [system_mes] +history-msg[-10:]
+    to_send = [system_mes] + history_msg[-10:]
     to_send.append({"role":"user","content": user_mes})
 
     response = client.chat.completions.create(
