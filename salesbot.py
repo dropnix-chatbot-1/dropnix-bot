@@ -26,7 +26,7 @@ def get_prompt_from_sheet():
                 print(" sheet se prompt loaded hai")
                 return row.get("value").strip()
     except Exception as e:
-        print("sheet error")
+        print(f"sheet error:{e}")
     return """ tu Dropnix.ai company ka salesbot hai tuje costumre ko hamare poductke detail bataine hai
         product---
         offer no.1 1500₹/month 24/7 chatbot 
